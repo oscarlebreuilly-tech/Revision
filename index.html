@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Streetcar Named Desire — Revision Hub</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Georgia, serif; background: #0d0d1a; color: #f1f5f9; min-height: 100vh; }
+
+  /* NAV */
+  .nav {
+    position: sticky; top: 0; z-index: 100;
+    background: #0d0d1aee; backdrop-filter: blur(10px);
+    border-bottom: 1px solid #1e2a3a;
+    padding: 10px 16px;
+    display: flex; align-items: center; gap: 8px;
+    overflow-x: auto; -webkit-overflow-scrolling: touch;
+  }
+  .nav-title { font-size: 13px; font-weight: 900; color: #e8c547; letter-spacing: 1px; white-space: nowrap; margin-right: 6px; flex-shrink: 0; }
+  .nav-btn {
+    background: none; border: 1px solid #2d3748; border-radius: 20px;
+    padding: 5px 13px; cursor: pointer; font-size: 12px; font-weight: 700;
+    color: #94a3b8; white-space: nowrap; flex-shrink: 0;
+    font-family: Georgia, serif; transition: all 0.15s;
+  }
+  .nav-btn.active, .nav-btn:hover { background: #e8c547; color: #0d0d1a; border-color: #e8c547; }
+
+  .main { max-width: 700px; margin: 0 auto; padding: 20px 16px 60px; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* HOME */
+  .home-header { text-align: center; padding: 24px 0 28px; }
+  .home-sub { font-size: 11px; letter-spacing: 5px; color: #e8c547; text-transform: uppercase; margin-bottom: 10px; }
+  .home-title { font-size: 28px; font-weight: 900; line-height: 1.15; margin-bottom: 6px; }
+  .home-badge { display: inline-block; background: #e8c547; color: #0d0d1a; font-size: 11px; font-weight: 800; padding: 3px 12px; border-radius: 4px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 14px; }
+  .home-desc { color: #94a3b8; font-size: 14px; line-height: 1.6; max-width: 460px; margin: 0 auto; }
+  .hub-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 24px; }
+  .hub-card {
+    border-radius: 16px; padding: 18px 16px; cursor: pointer;
+    border-width: 2px; border-style: solid; text-align: left;
+    transition: transform 0.15s, box-shadow 0.15s; background: none;
+  }
+  .hub-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
+  .hub-card-icon { font-size: 28px; margin-bottom: 8px; display: block; }
+  .hub-card-name { font-size: 15px; font-weight: 900; margin-bottom: 3px; }
+  .hub-card-desc { font-size: 12px; opacity: 0.7; line-height: 1.4; }
+
+  /* SHARED */
+  .section-header { margin-bottom: 20px; padding-top: 4px; }
+  .section-label { font-size: 11px; letter-spacing: 4px; text-transform: uppercase; margin-bottom: 6px; }
+  .section-title { font-size: 22px; font-weight: 900; margin-bottom: 4px; }
+  .section-sub { color: #64748b; font-size: 13px; }
+  .card-grid { display: grid; gap: 12px; }
+  .item-card {
+    border-radius: 16px; padding: 18px; cursor: pointer;
+    border-width: 2px; border-style: solid;
+    transition: transform 0.12s; text-align: left; width: 100%;
+  }
+  .item-card:hover { transform: translateY(-1px); }
+  .tldr-box { border-left-width: 3px; border-left-style: solid; border-radius: 6px; padding: 10px 13px; margin: 10px 0; font-size: 14px; line-height: 1.5; }
+  .tldr-lbl { font-size: 10px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 3px; }
+  .tag-row { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+  .tag { border-radius: 999px; padding: 2px 10px; font-size: 11px; font-weight: 700; }
+  .back-btn {
+    background: none; border: none; color: #e8c547; cursor: pointer;
+    font-size: 14px; margin-bottom: 16px; display: flex; align-items: center;
+    gap: 5px; padding: 0; font-family: Georgia, serif;
+  }
+  .back-btn:hover { text-decoration: underline; }
+  .detail-hero { border-radius: 18px; padding: 20px; margin-bottom: 14px; border-width: 2px; border-style: solid; }
+  .detail-top { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .detail-icon { font-size: 42px; flex-shrink: 0; }
+  .detail-name { font-size: 20px; font-weight: 900; line-height: 1.1; margin-bottom: 3px; }
+  .detail-sub { font-size: 13px; font-style: italic; opacity: 0.7; }
+  .acc-wrap { display: grid; gap: 9px; }
+  .acc-item { border-radius: 12px; overflow: hidden; border-width: 2px; border-style: solid; }
+  .acc-btn {
+    width: 100%; background: none; border: none; padding: 13px 16px;
+    cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+    text-align: left; font-family: Georgia, serif;
+  }
+  .acc-title { font-size: 14px; font-weight: 800; margin-bottom: 2px; }
+  .acc-sum { font-size: 12px; color: #64748b; }
+  .acc-arr { font-size: 16px; margin-left: 8px; flex-shrink: 0; }
+  .acc-body { display: none; padding: 0 16px 16px; }
+  .acc-body.open { display: block; }
+  .acc-detail { font-size: 14px; line-height: 1.7; color: #cbd5e1; margin-bottom: 12px; }
+  .quote-card { border-radius: 9px; padding: 12px 14px; border-width: 2px; border-style: solid; background: #111827; margin-bottom: 8px; }
+  .quote-who { font-size: 10px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
+  .quote-text { font-size: 13px; font-style: italic; color: #f1f5f9; line-height: 1.6; margin-bottom: 5px; }
+  .quote-why { font-size: 11px; font-weight: 700; }
+  .bottom-nav { margin-top: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .bnav-btn {
+    border-radius: 10px; padding: 10px 12px; cursor: pointer; font-size: 12px;
+    font-weight: 700; border-width: 2px; border-style: solid; font-family: Georgia, serif;
+    text-align: left; transition: transform 0.12s; background: #111827;
+  }
+  .bnav-btn:hover { transform: scale(1.02); }
+  .bnav-name { font-size: 13px; font-weight: 900; }
+  .bnav-tag { font-size: 11px; opacity: 0.6; font-style: italic; margin-top: 1px; }
+
+  /* QUOTES */
+  .quotes-filter { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 16px; }
+  .filter-btn {
+    border-radius: 20px; padding: 5px 13px; cursor: pointer; font-size: 12px; font-weight: 700;
+    border-width: 2px; border-style: solid; font-family: Georgia, serif; transition: all 0.15s;
+    background: none; color: #94a3b8; border-color: #2d3748;
+  }
+  .filter-btn.on { color: #0d0d1a; }
+  .q-item { border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; border-width: 2px; border-style: solid; background: #111827; }
+  .q-meta { display: flex; gap: 8px; margin-bottom: 7px; flex-wrap: wrap; }
+  .q-tag { border-radius: 999px; padding: 2px 9px; font-size: 10px; font-weight: 800; }
+  .q-quote { font-size: 14px; font-style: italic; color: #f1f5f9; line-height: 1.6; margin-bottom: 7px; }
+  .q-analysis { font-size: 13px; color: #94a3b8; line-height: 1.6; }
+
+  /* PLOT */
+  .scene-card { border-radius: 12px; padding: 15px 16px; margin-bottom: 10px; border-width: 2px; border-style: solid; cursor: pointer; background: #111827; }
+  .scene-top { display: flex; justify-content: space-between; align-items: center; }
+  .scene-num { font-size: 10px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 3px; }
+  .scene-title { font-size: 15px; font-weight: 900; }
+  .scene-body { display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid #1e2a3a; }
+  .scene-body.open { display: block; }
+  .scene-body p { font-size: 14px; line-height: 1.7; color: #cbd5e1; margin-bottom: 8px; }
+  .scene-key { font-size: 11px; font-weight: 800; color: #e8c547; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; margin-top: 8px; }
+
+  /* CONTEXT */
+  .context-card { border-radius: 14px; padding: 16px; margin-bottom: 10px; border-width: 2px; border-style: solid; background: #111827; }
+  .context-icon { font-size: 24px; margin-bottom: 6px; }
+  .context-title { font-size: 15px; font-weight: 900; margin-bottom: 6px; }
+  .context-text { font-size: 14px; line-height: 1.7; color: #cbd5e1; }
+  .context-link { font-size: 12px; font-weight: 700; margin-top: 8px; padding: 4px 10px; border-radius: 6px; display: inline-block; }
+
+  /* ESSAY */
+  .essay-card { border-radius: 14px; padding: 16px; margin-bottom: 10px; border-left-width: 4px; border-left-style: solid; background: #111827; border-right: none; border-top: none; border-bottom: none; }
+  .essay-num { font-size: 10px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 4px; }
+  .essay-title { font-size: 16px; font-weight: 900; margin-bottom: 8px; }
+  .essay-text { font-size: 14px; line-height: 1.7; color: #cbd5e1; }
+  .essay-example { border-radius: 8px; padding: 11px 13px; margin-top: 10px; font-size: 13px; line-height: 1.6; font-style: italic; }
+  .essay-example-lbl { font-size: 10px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; font-style: normal; }
+  .peel-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+  .peel-box { border-radius: 8px; padding: 10px 12px; text-align: center; }
+  .peel-letter { font-size: 22px; font-weight: 900; }
+  .peel-word { font-size: 11px; font-weight: 700; opacity: 0.8; margin-top: 2px; }
+  .peel-desc { font-size: 11px; opacity: 0.6; margin-top: 4px; line-height: 1.4; }
+
+  /* QUESTION BANK */
+  .qbank-filter { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 16px; }
+  .qbank-card { border-radius: 14px; padding: 18px; margin-bottom: 12px; border-width: 2px; border-style: solid; background: #0a1928; cursor: pointer; }
+  .qbank-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+  .qbank-meta { display: flex; gap: 7px; margin-bottom: 10px; flex-wrap: wrap; }
+  .qbank-badge { border-radius: 999px; padding: 2px 10px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+  .qbank-q { font-size: 15px; font-weight: 900; line-height: 1.4; color: #f1f5f9; margin-bottom: 4px; }
+  .qbank-tap { font-size: 11px; color: #475569; }
+  .qbank-body { display: none; margin-top: 14px; padding-top: 14px; border-top: 1px solid #1e2a3a; }
+  .qbank-body.open { display: block; }
+  .qbank-section-lbl { font-size: 10px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; margin-top: 12px; }
+  .qbank-bullet { font-size: 13px; line-height: 1.6; color: #cbd5e1; padding: 6px 0; border-bottom: 1px solid #1e2a3a22; display: flex; gap: 8px; }
+  .qbank-bullet:last-child { border-bottom: none; }
+  .qbank-bullet-dot { flex-shrink: 0; margin-top: 2px; }
+  .qbank-quote-box { border-radius: 8px; padding: 10px 13px; margin-top: 4px; font-size: 12px; font-style: italic; line-height: 1.5; }
+  .qbank-ao { display: grid; grid-template-columns: repeat(3,1fr); gap: 6px; margin-top: 10px; }
+  .qbank-ao-box { border-radius: 8px; padding: 8px 10px; text-align: center; }
+  .qbank-ao-label { font-size: 10px; font-weight: 800; letter-spacing: 1px; }
+  .qbank-ao-desc { font-size: 10px; opacity: 0.7; margin-top: 2px; line-height: 1.3; }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <span class="nav-title">🎭 Streetcar</span>
+  <button class="nav-btn active" onclick="showPanel('home')">🏠 Home</button>
+  <button class="nav-btn" onclick="showPanel('characters')">👥 Characters</button>
+  <button class="nav-btn" onclick="showPanel('themes')">💡 Themes</button>
+  <button class="nav-btn" onclick="showPanel('quotes')">💬 Quotes</button>
+  <button class="nav-btn" onclick="showPanel('plot')">📖 Plot</button>
+  <button class="nav-btn" onclick="showPanel('context')">🌍 Context</button>
+  <button class="nav-btn" onclick="showPanel('essay')">✏️ Essay Tips</button>
+  <button class="nav-btn" onclick="showPanel('questions')">📝 Question Bank</button>
+</nav>
+
+<div class="main">
+
+  <!-- HOME -->
+  <div id="panel-home" class="panel active">
+    <div class="home-header">
+      <div class="home-sub">Tennessee Williams · 1947</div>
+      <div class="home-title">A Streetcar Named Desire</div>
+      <div class="home-badge">Edexcel A-Level Revision Hub</div>
+      <p class="home-desc">Everything you need in one place. ADHD-friendly chunks, TL;DRs, quotes, and Edexcel-specific exam guidance.</p>
+    </div>
+    <div class="hub-grid">
+      <button class="hub-card" onclick="showPanel('characters')" style="border-color:#818cf855;background:#1e1b4b55;">
+        <span class="hub-card-icon">👥</span>
+        <div class="hub-card-name" style="color:#a5b4fc">Characters</div>
+        <div class="hub-card-desc">Blanche, Stanley, Stella & Mitch — who they are and what they represent</div>
+      </button>
+      <button class="hub-card" onclick="showPanel('themes')" style="border-color:#f59e0b55;background:#1c140855;">
+        <span class="hub-card-icon">💡</span>
+        <div class="hub-card-name" style="color:#fcd34d">Themes</div>
+        <div class="hub-card-desc">Illusion, Class, Sexism & Desire — the big ideas Williams explores</div>
+      </button>
+      <button class="hub-card" onclick="showPanel('quotes')" style="border-color:#34d39955;background:#06241a55;">
+        <span class="hub-card-icon">💬</span>
+        <div class="hub-card-name" style="color:#6ee7b7">Key Quotes</div>
+        <div class="hub-card-desc">The most important lines, filtered by character and theme</div>
+      </button>
+      <button class="hub-card" onclick="showPanel('plot')" style="border-color:#f43f5e55;background:#1f0a0d55;">
+        <span class="hub-card-icon">📖</span>
+        <div class="hub-card-name" style="color:#fda4af">Plot Summary</div>
+        <div class="hub-card-desc">Scene-by-scene breakdown of what happens and why it matters</div>
+      </button>
+      <button class="hub-card" onclick="showPanel('context')" style="border-color:#fb923c55;background:#1f100555;">
+        <span class="hub-card-icon">🌍</span>
+        <div class="hub-card-name" style="color:#fdba74">Context</div>
+        <div class="hub-card-desc">Williams' life, 1940s America, and why context boosts your grade</div>
+      </button>
+      <button class="hub-card" onclick="showPanel('essay')" style="border-color:#e8c54755;background:#1a160055;">
+        <span class="hub-card-icon">✏️</span>
+        <div class="hub-card-name" style="color:#e8c547">Essay Tips</div>
+        <div class="hub-card-desc">Structure, PEEL, what Edexcel examiners want</div>
+      </button>
+      <button class="hub-card" onclick="showPanel('questions')" style="border-color:#38bdf855;background:#0a192855;grid-column:1/-1;">
+        <span class="hub-card-icon">📝</span>
+        <div class="hub-card-name" style="color:#7dd3fc">Edexcel Question Bank</div>
+        <div class="hub-card-desc">8 real-style questions with AO breakdowns, must-address points, quotes to use, and top-band arguments</div>
+      </button>
+    </div>
+  </div>
+
+  <!-- CHARACTERS -->
+  <div id="panel-characters" class="panel">
+    <div id="char-list">
+      <div class="section-header">
+        <div class="section-label" style="color:#818cf8">Characters</div>
+        <div class="section-title">The Four Main Players</div>
+        <div class="section-sub">Tap a character to explore their analysis</div>
+      </div>
+      <div class="card-grid" id="char-cards"></div>
+    </div>
+    <div id="char-detail" style="display:none;"></div>
+  </div>
+
+  <!-- THEMES -->
+  <div id="panel-themes" class="panel">
+    <div id="theme-list">
+      <div class="section-header">
+        <div class="section-label" style="color:#f59e0b">Themes</div>
+        <div class="section-title">The Big Ideas</div>
+        <div class="section-sub">Tap a theme to explore it</div>
+      </div>
+      <div class="card-grid" id="theme-cards"></div>
+    </div>
+    <div id="theme-detail" style="display:none;"></div>
+  </div>
+
+  <!-- QUOTES -->
+  <div id="panel-quotes" class="panel">
+    <div class="section-header">
+      <div class="section-label" style="color:#34d399">Key Quotes</div>
+      <div class="section-title">Quote Bank</div>
+      <div class="section-sub">Filter by character or theme</div>
+    </div>
+    <div class="quotes-filter" id="quotes-filter"></div>
+    <div id="quotes-list"></div>
+  </div>
+
+  <!-- PLOT -->
+  <div id="panel-plot" class="panel">
+    <div class="section-header">
+      <div class="section-label" style="color:#f43f5e">Plot</div>
+      <div class="section-title">Scene by Scene</div>
+      <div class="section-sub">Tap each scene to expand it</div>
+    </div>
+    <div id="plot-list"></div>
+  </div>
+
+  <!-- CONTEXT -->
+  <div id="panel-context" class="panel">
+    <div class="section-header">
+      <div class="section-label" style="color:#fb923c">Context</div>
+      <div class="section-title">Background & Context</div>
+      <div class="section-sub">Why context matters for your grade</div>
+    </div>
+    <div id="context-list"></div>
+  </div>
+
+  <!-- ESSAY -->
+  <div id="panel-essay" class="panel">
+    <div class="section-header">
+      <div class="section-label" style="color:#e8c547">Essay Tips</div>
+      <div class="section-title">How to Write Top Essays</div>
+      <div class="section-sub">Edexcel A-Level focused advice</div>
+    </div>
+    <div id="essay-list"></div>
+  </div>
+
+  <!-- QUESTION BANK -->
+  <div id="panel-questions" class="panel">
+    <div class="section-header">
+      <div class="section-label" style="color:#38bdf8">Edexcel A-Level</div>
+      <div class="section-title">📝 Question Bank</div>
+      <div class="section-sub">Tap a question to see how to approach it</div>
+    </div>
+    <div class="qbank-filter" id="qbank-filter"></div>
+    <div id="qbank-list"></div>
+  </div>
+
+</div>
+<script>
+const characters = [
+  { id:"blanche", icon:"🌸", name:"Blanche DuBois", color:"#f9a8d4", bg:"#1a0a12", accent:"#f9a8d4",
+    tagline:"The Dreamer who can't face reality",
+    tldr:"A faded Southern belle clinging to illusion to survive a painful past. Fragile, deceptive, and deeply tragic — she is the play's heart.",
+    traits:["Delusional","Fragile","Aristocratic","Desperate","Poetic"],
+    sections:[
+      { icon:"🎭", title:"Fantasy vs Reality", sum:"She edits reality into something bearable — and it destroys her.",
+        detail:"Blanche's defining trait is her refusal to face reality. Williams uses light as a recurring motif — she covers bulbs, avoids harsh lighting, and exists in soft illusion. Her expressionist world clashes fatally with Stanley's brutal realism. But Williams presents her illusions with sympathy — they are the coping mechanism of a woman already broken.",
+        quotes:[
+          {who:"Blanche", text:'"I don\'t tell the truth. I tell what ought to be truth."', why:"Her whole philosophy — and her fatal flaw — in one line."},
+          {who:"Blanche", text:'"I don\'t want realism. I want magic!"', why:"The exclamation marks show desperation — she is clinging, not simply choosing."}
+        ]
+      },
+      { icon:"🏚️", title:"The Old South", sum:"She is the last relic of a dying aristocratic world.",
+        detail:"Blanche arrives from Belle Reve ('beautiful dream' in French), lost to debt and death. She represents the antebellum Southern aristocracy — refined, literary, obsessed with lineage. But Williams makes clear this world was built on exploitation. Her tragedy is she cannot release it.",
+        quotes:[
+          {who:"Blanche", text:'"You came to New Orleans and looked out for yourself! I stayed at Belle Reve and tried to hold it together!"', why:"Her martyrdom and sense of abandonment — she blames Stella for surviving."}
+        ]
+      },
+      { icon:"💔", title:"Desire & Destruction", sum:"Her need for love and security drives every desperate decision.",
+        detail:"Blanche's fear of ageing drives her to pursue men not for love but survival. She understands this: 'Soft people have got to court the favour of hard ones.' Her desire isn't romance — it's a lifeline she cannot hold. Every man she reaches for pulls away, until there is no one left.",
+        quotes:[
+          {who:"Blanche", text:'"I have always depended on the kindness of strangers."', why:"Her final line. She has nothing and no one — and she knows it."},
+          {who:"Blanche", text:'"Soft people have got to court the favour of hard ones, Stella."', why:"She knows the game. She just keeps losing."}
+        ]
+      }
+    ]
+  },
+  { id:"stanley", icon:"💪", name:"Stanley Kowalski", color:"#fca5a5", bg:"#1a0505", accent:"#fca5a5",
+    tagline:"The Beast who broke the china",
+    tldr:"Raw, dominant, and terrifying. Stanley is the rise of working-class America crushing the old aristocracy. He represents a brutal kind of progress.",
+    traits:["Dominant","Violent","Perceptive","Territorial","Primal"],
+    sections:[
+      { icon:"👑", title:"King of His Castle", sum:"Stanley needs total control — of his home, wife, and world.",
+        detail:"Stanley's power is entirely physical and psychological. A Polish-American factory worker, he is the 'New South' made flesh. He sees through Blanche's performances immediately and is determined to expose her. He doesn't just dislike her; he is ideologically threatened by what she represents.",
+        quotes:[
+          {who:"Stanley", text:'"Every man is a King! And I am the King around here, so don\'t forget it!"', why:"Tells you everything about his ego and need for dominance in one breath."},
+          {who:"Stanley", text:'"We\'ve been through the dark ages, but now there\'s going to be a different regime."', why:"He frames himself as a new era — the Old South's replacement."}
+        ]
+      },
+      { icon:"⚔️", title:"Old vs New World", sum:"Stanley vs Blanche is a class war disguised as a domestic drama.",
+        detail:"Stanley represents postwar America: diverse, working-class, contemptuous of genteel culture. When he tears through Blanche's trunk, it's symbolic — stripping away the fiction of her aristocracy piece by piece. Williams doesn't celebrate Stanley's victory: his 'new world' is just as ugly as the one it replaces.",
+        quotes:[
+          {who:"Blanche", text:'"He acts like an animal, has an animal\'s habits... There\'s even something sub-human about him."', why:"Her class contempt — but also her fear of what he represents for the future."}
+        ]
+      },
+      { icon:"🔥", title:"Desire as Violence", sum:"Stanley's desire is possessive, brutal — and goes unpunished.",
+        detail:"The rape of Blanche in Scene 10 is the play's most shocking act, but Williams has built to it through every intimidation. Each confrontation is a smaller version of the same act: dominance through force. And Stanley faces zero consequences — the systems around him all protect him.",
+        quotes:[
+          {who:"Stanley", text:'"We\'ve had this date with each other from the beginning!"', why:"Said before the assault. He frames it as inevitable. One of the most chilling lines in modern drama."}
+        ]
+      }
+    ]
+  },
+  { id:"stella", icon:"🌹", name:"Stella Kowalski", color:"#86efac", bg:"#050f08", accent:"#86efac",
+    tagline:"The woman caught between two worlds",
+    tldr:"The most conflicted character. She loves her violent husband and her fragile sister — and must choose between them. Her choice is the play's most devastating moment.",
+    traits:["Conflicted","Loyal","Passive","Loving","Complicit"],
+    sections:[
+      { icon:"💞", title:"Desire as a Chain", sum:"She returns to Stanley again and again — knowing exactly what he is.",
+        detail:"Stella is not naive. She knows Stanley is dangerous. Yet desire overrides everything. Williams doesn't judge her — he shows how desire can be stronger than self-preservation and stronger than sisterhood.",
+        quotes:[
+          {who:"Stella", text:'"There are things that happen between a man and a woman in the dark — that sort of make everything else seem unimportant."', why:"Honest, uncomfortable, devastating — Stella explaining why she stays."}
+        ]
+      },
+      { icon:"😔", title:"The Impossible Choice", sum:"At the end she must choose: believe her sister or save her marriage.",
+        detail:"The final scene is Stella's most complex moment. She must either believe Blanche and leave Stanley, or dismiss the rape as delusion. Knowing deep down it is true, she chooses doubt — because the alternative is a life she cannot face. She becomes what she feared: someone who chooses illusion over reality.",
+        quotes:[
+          {who:"Stella", text:'"I couldn\'t believe her story and go on living with Stanley."', why:"The most honest line in the play. And the most heartbreaking."}
+        ]
+      },
+      { icon:"🔗", title:"The Bridge Character", sum:"Stella connects both worlds — and belongs fully to neither.",
+        detail:"Raised at Belle Reve but choosing New Orleans, Stella is uniquely positioned between Blanche's world and Stanley's. She understands both — and is powerless in both. She is the human cost of the play's central collision.",
+        quotes:[
+          {who:"Stella", text:'"Blanche is... not quite right."', why:"Said at the end. She has to say it. That's what makes it so sad."}
+        ]
+      }
+    ]
+  },
+  { id:"mitch", icon:"🎩", name:"Harold 'Mitch' Mitchell", color:"#c4b5fd", bg:"#0e0a1a", accent:"#c4b5fd",
+    tagline:"The gentle giant who couldn't handle the truth",
+    tldr:"Lonely, kind, and genuinely in love with Blanche — until Stanley destroys the illusion. His rejection closes Blanche's last door.",
+    traits:["Gentle","Lonely","Naive","Bitter","Well-meaning"],
+    sections:[
+      { icon:"🕯️", title:"Two Lonely People", sum:"Blanche and Mitch find each other — and it almost works.",
+        detail:"Mitch is a mama's boy, grieving, searching for connection. For a brief window he and Blanche reflect each other's loneliness tenderly. It is the closest thing to genuine love in the play — which is why its destruction is so brutal.",
+        quotes:[
+          {who:"Mitch", text:'"You need somebody. And I need somebody, too."', why:"The most tender moment in the play. Simple, sweet, and completely doomed."}
+        ]
+      },
+      { icon:"💡", title:"Truth vs Heart-Truth", sum:"He demands facts. She only has feelings. That gap destroys them.",
+        detail:"Once Stanley reveals Blanche's past, Mitch tears the paper lantern from the bulb — forcing her into the light she has always avoided. He wants factual truth. Blanche: 'I didn't lie in my heart.' They speak entirely different languages. Neither is entirely wrong.",
+        quotes:[
+          {who:"Blanche", text:'"I didn\'t lie in my heart."', why:"The gap between factual and emotional truth — and the most Blanche line in the play."},
+          {who:"Mitch", text:'"You\'re not clean enough to bring in the house with my mother."', why:"His cruelest line. Even gentle men are capable of cruelty when their ego is wounded."}
+        ]
+      }
+    ]
+  }
+];
+
+const themes = [
+  { id:"illusion", icon:"🪄", name:"Illusion vs Reality", tagline:"The lies we tell to survive",
+    color:"#818cf8", bg:"#12103a", accent:"#a5b4fc",
+    keywords:["Fantasy","Deception","Light motif","Denial","Madness"],
+    tldr:"The whole play is a battle between fantasy and truth. Blanche builds illusions to survive; Stanley tears them down. Williams asks: is it kinder to live in a lie?",
+    sections:[
+      { icon:"🌙", title:"Blanche's Illusions", sum:"She doesn't lie — she edits reality into something bearable.",
+        detail:"Blanche covers light bulbs, performs gentility, and hides her past. For Blanche, illusion isn't vanity — it's survival. Williams presents this sympathetically: the illusions are the coping mechanism of a woman already broken by the world.",
+        quotes:[
+          {who:"Blanche", text:'"I don\'t want realism. I want magic! I try to give that to people."', why:"She knows she's lying — and keeps going anyway. That's what makes her tragic."},
+          {who:"Blanche", text:'"I don\'t tell the truth. I tell what ought to be truth."', why:"Her philosophy in one sentence."}
+        ]
+      },
+      { icon:"💡", title:"Light as Symbol", sum:"Light = truth; darkness = illusion. Williams uses this throughout.",
+        detail:"The paper lantern Blanche places over the bulb is the play's most powerful symbol. When Mitch rips it off, it is a violent act of exposure. Stanley has no illusions — he operates entirely in harsh light. Blanche cannot survive that brightness.",
+        quotes:[
+          {who:"Blanche", text:'"I can\'t stand a naked light bulb, any more than I can a rude remark or a vulgar action."', why:"The light bulb = unfiltered reality. She finds both physically unbearable."},
+          {who:"Mitch", text:'"I don\'t think I ever seen you in the light."', why:"The moment he realises she has been performing the entire time."}
+        ]
+      },
+      { icon:"😶", title:"Stella Chooses Illusion Too", sum:"By the end, Stella makes the same choice as Blanche.",
+        detail:"The play's most devastating irony: Stella ends up exactly like Blanche, choosing illusion over reality to survive. She cannot believe the rape story and keep her life — so she chooses not to believe it. Illusion is not Blanche's weakness alone. It is a universal human strategy.",
+        quotes:[
+          {who:"Stella", text:'"I couldn\'t believe her story and go on living with Stanley."', why:"The most honest — and most heartbreaking — admission in the play."}
+        ]
+      }
+    ],
+    chars:["🌸 Blanche","🌹 Stella","🎩 Mitch"]
+  },
+  { id:"oldnew", icon:"⚡", name:"Old vs New America", tagline:"A dying world colliding with a brutal new one",
+    color:"#f59e0b", bg:"#1c1408", accent:"#fcd34d",
+    keywords:["Class war","Old South","Immigration","Progress","Decay"],
+    tldr:"Blanche = the Old South (aristocratic, fragile, dying). Stanley = the New America (immigrant, working-class, dominant). Their conflict is the story of a country changing forever.",
+    sections:[
+      { icon:"🏚️", title:"Blanche and the Old South", sum:"She's the last gasp of a world that no longer exists.",
+        detail:"Blanche comes from Belle Reve ('beautiful dream') — lost to debt and death. She is the antebellum South in human form: refined, obsessed with lineage, but built on a rotten foundation. Williams does not fully mourn its passing — but he shows the human cost of its collapse.",
+        quotes:[
+          {who:"Stage directions", text:'"Her appearance is incongruous to this setting."', why:"Williams signals from scene one that Blanche doesn't belong in this new world."}
+        ]
+      },
+      { icon:"🏭", title:"Stanley and the New America", sum:"He's the future — and the future is brutal.",
+        detail:"Stanley is a Polish-American factory worker — postwar America made flesh. He has no reverence for the past, only contempt. But Williams refuses to make him a hero — his world is violent, sexist, and dehumanising. Progress, Williams suggests, can be deeply ugly.",
+        quotes:[
+          {who:"Stanley", text:'"We\'ve been through the dark ages, but now there\'s going to be a different regime."', why:"He explicitly positions himself as a new era. He is right — and that is frightening."}
+        ]
+      },
+      { icon:"🔥", title:"The Collision", sum:"No one wins. Two ugly worlds destroy each other — and Blanche pays the price.",
+        detail:"When Stanley destroys Blanche, he obliterates the last remnant of the Old South's self-image. But Williams offers no celebration. The New America is brutal in its own way. There is no hero. Just one fragile woman crushed between two forces.",
+        quotes:[
+          {who:"Blanche", text:'"He acts like an animal, has an animal\'s habits."', why:"Her contempt reveals her class bias — but she is also not entirely wrong about what Stanley represents."}
+        ]
+      }
+    ],
+    chars:["🌸 Blanche","💪 Stanley","🌹 Stella"]
+  },
+  { id:"sexism", icon:"⚖️", name:"Sexism & Gender", tagline:"A world designed to break women",
+    color:"#f43f5e", bg:"#1f0a0d", accent:"#fda4af",
+    keywords:["Patriarchy","Dependence","Vulnerability","Power","Violence"],
+    tldr:"Every woman in the play is at the mercy of men — economically, socially, physically. Williams exposes a world where female survival depends on male approval.",
+    sections:[
+      { icon:"🪤", title:"Women's Dependence on Men", sum:"Blanche and Stella both need men to survive — and they both know it.",
+        detail:"In 1940s America, women had almost no economic independence. Blanche performing femininity is not vanity — it's survival strategy. Stella staying with Stanley isn't just love — it's because leaving would mean nowhere to go.",
+        quotes:[
+          {who:"Blanche", text:'"I have always depended on the kindness of strangers."', why:"Her final line. No agency, no options. The word 'always' suggests this is structural, not personal failure."},
+          {who:"Blanche", text:'"Soft people have got to court the favour of hard ones."', why:"She has completely internalised the power dynamic — and is exhausted by it."}
+        ]
+      },
+      { icon:"👊", title:"Stanley's Violence — And Its Impunity", sum:"Stanley beats, rapes, and controls — and faces no consequences.",
+        detail:"By the end of the play, Stanley has beaten his wife and raped her sister. Stella returns. Blanche is institutionalised. Stanley wins. Every system — law, marriage, medicine — protects him and silences the women around him.",
+        quotes:[
+          {who:"Stanley", text:'"We\'ve had this date with each other from the beginning!"', why:"He frames the rape as inevitable — and the play's systems prove him right."}
+        ]
+      },
+      { icon:"🎭", title:"Femininity as Performance", sum:"Blanche performs womanhood as survival. Williams asks if any woman has a choice.",
+        detail:"Blanche is acutely aware her value is tied to male perception. She dresses carefully, flatters, performs vulnerability. But Stella too performs — the devoted wife — to manage Stanley. Williams suggests femininity is not natural but imposed: a costume women wear to survive patriarchy.",
+        quotes:[
+          {who:"Blanche", text:'"A woman\'s charm is fifty percent illusion."', why:"She has internalised the male gaze so completely she quotes it back as wisdom."},
+          {who:"Blanche", text:'"I want to deceive him enough to make him want me."', why:"Fully conscious of what she is doing. She does it anyway — she has no other option."}
+        ]
+      }
+    ],
+    chars:["🌸 Blanche","🌹 Stella","💪 Stanley"]
+  },
+  { id:"desire", icon:"🔥", name:"Love & Desire", tagline:"What people want — and what it costs them",
+    color:"#ec4899", bg:"#1a0a14", accent:"#f9a8d4",
+    keywords:["Passion","Obsession","Destruction","Loneliness","Survival"],
+    tldr:"Desire drives every character to their breaking point. Williams shows it as both the most human force and the most destructive — indifferent to whether we survive it.",
+    sections:[
+      { icon:"🚋", title:"The Title — Desire as Journey", sum:"The streetcar maps Blanche's whole arc: desire leads to death.",
+        detail:"Blanche takes a streetcar named 'Desire' to reach Elysian Fields, transferring to one called 'Cemeteries.' Williams maps her arc in that journey. The title frames the entire play: where does desire take us? Somewhere between paradise and the grave.",
+        quotes:[
+          {who:"Blanche", text:'"They told me to take a street-car named Desire, and transfer to one called Cemeteries."', why:"The play's central metaphor, delivered in the very first scene."},
+          {who:"Blanche", text:'"Death. The opposite is desire."', why:"She names the two poles between which every character in the play lives."}
+        ]
+      },
+      { icon:"💞", title:"Stella & Stanley — Desire as Chain", sum:"Stella's desire for Stanley is stronger than self-preservation — or sisterhood.",
+        detail:"Their relationship is passionate and real — but built on violence and control. Stella returns after every beating. Williams shows how desire can override reason, morality, and survival instinct.",
+        quotes:[
+          {who:"Stella", text:'"There are things that happen between a man and a woman in the dark — that sort of make everything else seem unimportant."', why:"The most honest explanation for why she stays. Uncomfortable — and true."}
+        ]
+      },
+      { icon:"🕯️", title:"Blanche & Mitch — Desire for Connection", sum:"Two lonely people who almost save each other.",
+        detail:"Both are grieving, both desperate for connection. Mitch is Blanche's last real chance. When Stanley destroys that with the truth about her past, he closes her final door. After Mitch, Blanche has nothing to reach for.",
+        quotes:[
+          {who:"Mitch", text:'"You need somebody. And I need somebody, too."', why:"The most tender line in the play. Simple, genuine, and doomed."}
+        ]
+      }
+    ],
+    chars:["🌸 Blanche","💪 Stanley","🌹 Stella","🎩 Mitch"]
+  }
+];
+
+const allQuotes = [
+  { char:"Blanche", theme:"Illusion", text:'"I don\'t tell the truth. I tell what ought to be truth."', analysis:"Encapsulates Blanche's entire worldview. She is aware of her own deception — which makes her sympathetic, not simply dishonest." },
+  { char:"Blanche", theme:"Illusion", text:'"I don\'t want realism. I want magic!"', analysis:"Her most famous defence of illusion. The exclamation mark shows desperation — she is not calmly preferring fantasy, she is clinging to it." },
+  { char:"Blanche", theme:"Desire", text:'"I have always depended on the kindness of strangers."', analysis:"Her final line — and the play's most tragic. She has lost everything and has no agency. Simultaneously deluded and heartbreakingly honest." },
+  { char:"Blanche", theme:"Sexism", text:'"Soft people have got to court the favour of hard ones."', analysis:"She fully understands the patriarchal power dynamic she is trapped in. Her exhaustion is visible — but she sees no alternative." },
+  { char:"Blanche", theme:"Desire", text:'"Death. The opposite is desire."', analysis:"Four words that contain the play's thesis. Williams strips it bare deliberately." },
+  { char:"Blanche", theme:"Illusion", text:'"I can\'t stand a naked light bulb, any more than I can a rude remark or a vulgar action."', analysis:"The light motif made explicit. Blanche cannot bear unfiltered reality in any form." },
+  { char:"Blanche", theme:"Sexism", text:'"A woman\'s charm is fifty percent illusion."', analysis:"She has so thoroughly internalised the male gaze that she quotes it back as wisdom. One of the play's most quietly devastating lines." },
+  { char:"Stanley", theme:"Old vs New", text:'"Every man is a King! And I am the King around here, so don\'t forget it!"', analysis:"Raw dominance over class or wealth. Stanley's version of the American Dream is about control — not money or status." },
+  { char:"Stanley", theme:"Desire", text:'"We\'ve had this date with each other from the beginning!"', analysis:"Said before the assault on Blanche. He frames rape as inevitable — and the play's systems prove him right by letting him face no consequences." },
+  { char:"Stanley", theme:"Old vs New", text:'"We\'ve been through the dark ages, but now there\'s going to be a different regime."', analysis:"He literally positions himself as a new era. This is the language of revolution — violent and contemptuous of what came before." },
+  { char:"Stella", theme:"Desire", text:'"There are things that happen between a man and a woman in the dark — that sort of make everything else seem unimportant."', analysis:"Stella's explanation for staying. Honest and deeply uncomfortable. Williams refuses to let the audience dismiss it as weakness." },
+  { char:"Stella", theme:"Illusion", text:'"I couldn\'t believe her story and go on living with Stanley."', analysis:"The play's most brutally honest line. Stella knows the truth. She chooses not to believe it because the alternative is a life she cannot face." },
+  { char:"Mitch", theme:"Illusion", text:'"I don\'t think I ever seen you in the light."', analysis:"The moment Mitch realises Blanche has been performing. Light = truth; darkness = illusion. He forces exposure — a violent act dressed as revelation." },
+  { char:"Mitch", theme:"Desire", text:'"You need somebody. And I need somebody, too."', analysis:"The play's most tender moment. Two lonely people recognising each other. Simple, real — and completely doomed." },
+  { char:"Stage", theme:"Old vs New", text:'"Her appearance is incongruous to this setting."', analysis:"Williams signals from the very first scene that Blanche does not belong in this world. The stage direction does the work of pages of dialogue." }
+];
+
+const scenes = [
+  { num:"Scene 1", title:"Blanche Arrives", color:"#818cf8", summary:"Blanche arrives unexpectedly at Stella and Stanley's cramped New Orleans apartment, clearly out of place. Stanley is immediately suspicious. We learn Belle Reve has been lost.", key:"Establishes the central conflict: Blanche's fragile world vs Stanley's brutal one. The paper lantern is introduced. Blanche immediately begins performing.", quote:'"They told me to take a street-car named Desire, and transfer to one called Cemeteries."' },
+  { num:"Scenes 2–3", title:"The Poker Night", color:"#f59e0b", summary:"Stanley searches Blanche's trunk suspecting hidden assets. The poker night ends with Stanley beating Stella. She returns to him. Blanche meets Mitch.", key:"The Napoleonic Code scene establishes Stanley's legal justification for control. The beating and Stella's return shows the desire dynamic. Blanche and Mitch's connection begins.", quote:'"Stella! Stella!"' },
+  { num:"Scenes 4–5", title:"Blanche's Desperation", color:"#f43f5e", summary:"Blanche tries to convince Stella to leave Stanley. She writes to an old suitor for help. Her drinking increases. She flirts dangerously with a young man.", key:"Blanche's economic desperation becomes clear — she needs rescue. Her alcoholism deepens. Her attraction to youth links to her husband's death and her guilt.", quote:'"He acts like an animal, has an animal\'s habits."' },
+  { num:"Scenes 6–7", title:"Mitch & the Revelation", color:"#ec4899", summary:"Blanche and Mitch have a romantic evening. She tells him about her husband Allan's suicide after she discovered his homosexuality. Stanley discovers her real past and tells Mitch.", key:"The story of Allan explains Blanche's guilt and her flight into fantasy. Stanley's exposure of her past is premeditated destruction.", quote:'"You need somebody. And I need somebody, too."' },
+  { num:"Scene 8", title:"The Birthday Dinner", color:"#86efac", summary:"Mitch doesn't show for Blanche's birthday dinner. Stanley gives Blanche a bus ticket back to Laurel. Stella goes into labour.", key:"The bus ticket is Stanley's expulsion of Blanche — cruel and deliberate. The birthday dinner's failure marks the beginning of Blanche's total collapse.", quote:'"Deliberate cruelty is not forgivable."' },
+  { num:"Scene 9", title:"Mitch Confronts Blanche", color:"#c4b5fd", summary:"Mitch arrives drunk, confronts Blanche with the truth about her past, tries to assault her, and she expels him. Blanche is increasingly losing grip on reality.", key:"Mitch tears off the paper lantern — forcing Blanche into the light. His cruelty shows that even 'good' men are capable of violence when their ego is wounded.", quote:'"I didn\'t lie in my heart."' },
+  { num:"Scene 10", title:"The Rape", color:"#f43f5e", summary:"Stanley returns while Blanche is alone and increasingly delusional. He rapes her. This is the play's climax and turning point.", key:"The most shocking scene — but Williams has built to it. Stanley's violence is the logical endpoint of unchecked masculine dominance.", quote:'"We\'ve had this date with each other from the beginning!"' },
+  { num:"Scene 11", title:"Blanche is Taken Away", color:"#94a3b8", summary:"Weeks later. Blanche, now fully detached from reality, is taken to a mental institution. Stella weeps but does not intervene. Stanley comforts her.", key:"Stella's choice to stay means choosing illusion over her sister. Blanche's final line is devastating. Stanley wins — and the audience is left to decide how to feel.", quote:'"I have always depended on the kindness of strangers."' }
+];
+
+const contextItems = [
+  { icon:"👨‍💻", title:"Tennessee Williams — His Life", color:"#fb923c", text:"Williams (1911–1983) grew up in the American South and was deeply shaped by its culture and decline. He was gay — something he had to hide — and this gives the play its sensitivity to outsiders and people performing identities to survive. His sister Rose was lobotomised after a mental breakdown, which directly informs Blanche's institutionalisation. Williams understood fragility from the inside.", link:"Blanche's fate mirrors Rose Williams' real story" },
+  { icon:"🇺🇸", title:"Post-War America (1947)", color:"#f59e0b", text:"The play is set and written in 1947 — the immediate postwar period. America was experiencing massive social change: veterans returning, women being pushed back into domestic roles, and the old class hierarchies being disrupted by a newly empowered working class. Stanley is this new America. Blanche is the old world being swept aside.", link:"Links to: Old vs New America theme" },
+  { icon:"🌺", title:"The American South", color:"#ec4899", text:"The Old South's mythology — of elegance, honour, gentility — was always a fiction built on slavery. Williams, a Southerner himself, understood this. Blanche clings to this mythology even as it crumbles. New Orleans, where the play is set, was a city of diversity and cultural mixing — the antithesis of the plantation aristocracy Blanche mourns.", link:"Links to: Old South, Illusion vs Reality" },
+  { icon:"⚖️", title:"Women's Rights in 1940s America", color:"#f43f5e", text:"Women in 1947 had extremely limited economic independence. Married women were legally subject to their husbands in many states. There were almost no support systems for women leaving violent relationships. When the play shows Stella 'choosing' to stay with Stanley, Williams is showing the reality — she barely has a choice.", link:"Links to: Sexism & Gender theme" },
+  { icon:"🎭", title:"Expressionism vs Realism", color:"#818cf8", text:"Williams uses both theatrical modes deliberately. Stanley's world is realistic — grounded, physical, literal. Blanche's interior life is expressionist — the Varsouviana polka that plays in her head, distorted sounds and lighting. Blanche is an expressionist character trapped in a realist play. This staging choice alone tells you she doesn't belong and cannot survive.", link:"Links to: Illusion vs Reality, stagecraft" },
+  { icon:"🌈", title:"Homosexuality and Allan Grey", color:"#c4b5fd", text:"Allan Grey — Blanche's husband — was gay, and she humiliated him for it. He killed himself. Williams, himself gay, gives this episode enormous weight. Blanche's guilt over Allan explains her subsequent behaviour, her cruelty about weakness, and her own fragility. It connects to Williams' experience of living in a society that criminalised his identity.", link:"Links to: Blanche's character, desire" }
+];
+
+const essayTips = [
+  { color:"#e8c547", num:"01", title:"Always Link to Williams' Intentions", text:"Don't just say what happens — say what Williams is doing and why. Instead of 'Blanche lies a lot,' write 'Williams presents Blanche's deceptions as survival strategies, inviting the audience to sympathise with her fragility rather than judge her dishonesty.'", example:"\"Through Blanche's desperate clinging to illusion, Williams critiques a society that offers women no viable alternative to performance and self-deception.\"" },
+  { color:"#a5b4fc", num:"02", title:"Use the PEEL Structure", text:"Point → Evidence → Explain → Link back. Every paragraph should do all four. Your explanation is the most important part — examiners want to see you thinking, not just quoting.", isPEEL:true },
+  { color:"#6ee7b7", num:"03", title:"Context = Extra Marks (AO5)", text:"Weave context into your analysis — don't bolt it on at the end. Connect Williams' biography, 1940s America, and the Old South directly to the moment you're analysing. Edexcel awards AO5 marks specifically for this.", example:"\"Williams, who witnessed his own sister's institutionalisation, imbues Blanche's fate with autobiographical weight — her 'madness' is as much a product of a patriarchal system as it is a personal collapse.\"" },
+  { color:"#fda4af", num:"04", title:"Analyse Language and Form (AO2)", text:"Look at HOW Williams writes, not just WHAT he writes. Stage directions, punctuation, word choice, sentence length — all deliberate. The exclamation mark in 'I want magic!' shows desperation. The ellipsis in 'Blanche is... not quite right' shows Stella's reluctance.", example:"\"The staccato repetition of 'just — Desire!' mimics the streetcar's rattling rhythm, embedding the motif of inevitability into the very syntax of Blanche's speech.\"" },
+  { color:"#fdba74", num:"05", title:"Avoid Retelling the Plot", text:"Examiners know what happens. They want to know what it means. Every sentence should be analysis. If you catch yourself summarising events, ask: 'So what does this show about Williams' message?'", example:"❌ 'Stanley rapes Blanche in Scene 10.' ✅ 'The assault in Scene 10 is the logical culmination of Stanley's systematic dismantling of Blanche's defences — Williams implicates not just Stanley but every institution that enabled him.'" },
+  { color:"#818cf8", num:"06", title:"Acknowledge Ambiguity (AO1)", text:"Williams is not black and white. The best essays acknowledge complexity: Blanche is sympathetic but also manipulative. Stanley is brutal but also perceptive. Stella is complicit but also trapped. Edexcel rewards nuance — show you can hold two ideas at once.", example:"\"While Williams clearly invites sympathy for Blanche, he does not entirely excuse her: her cruelty towards Mitch and her manipulation of Stella complicate any straightforward reading of her as pure victim.\"" }
+];
+
+const questions = [
+  { id:1, theme:"Illusion", difficulty:"Core", q:"How does Williams present the theme of illusion and reality in A Streetcar Named Desire?",
+    aos:["AO1: Argue illusion as survival strategy vs self-destruction","AO2: Light motif, paper lantern, stage directions","AO5: Expressionism vs realism as theatrical movements"],
+    mustAddress:["Blanche's deliberate use of illusion — not naivety but conscious strategy","The paper lantern as a central symbol — what does it mean when Mitch removes it?","Stanley as the force of brutal reality — contrast his relationship with truth","Stella's final choice — she too chooses illusion, making this a universal theme","Williams' expressionist staging to put the audience inside Blanche's distorted perception"],
+    quotes:[
+      {text:'"I don\'t tell the truth. I tell what ought to be truth."', use:"Shows Blanche is self-aware — not deluded, but choosing illusion. Complicates simple judgements."},
+      {text:'"I don\'t want realism. I want magic!"', use:"Exclamation marks show desperation — she is clinging, not calmly choosing. Invites sympathy."},
+      {text:'"I couldn\'t believe her story and go on living with Stanley."', use:"Stella's line — proves illusion is universal, not just Blanche's weakness. Use for a sophisticated argument."}
+    ],
+    watchOut:"Don't just describe what Blanche does. Argue about WHY Williams presents illusion this way and what he wants the audience to feel.",
+    topArg:"Williams presents illusion not as weakness but as a rational response to an irrational world — and by the final scene, implicates every character (including Stella) in the same survival strategy."
+  },
+  { id:2, theme:"Sexism", difficulty:"Core", q:"How does Williams present the position of women in A Streetcar Named Desire?",
+    aos:["AO1: Argue patriarchal society traps women structurally","AO2: Blanche's language of performance, stage directions around Stanley's violence","AO5: 1940s women's limited rights, Williams' sympathy as an outsider"],
+    mustAddress:["Women's economic dependence — Blanche needs a man to survive, not out of weakness but necessity","Stanley's violence and its total impunity — the play's systems all protect him","Blanche performing femininity as survival — 'A woman's charm is fifty percent illusion'","Stella's impossible position — staying is not simply weakness, it is the only viable option","The ending: what does Williams want the audience to feel?"],
+    quotes:[
+      {text:'"I have always depended on the kindness of strangers."', use:"Final line. The word 'always' suggests this is structural, not personal failure."},
+      {text:'"We\'ve had this date with each other from the beginning!"', use:"Stanley frames the rape as inevitable. The play's systems prove him right — devastating critique of patriarchy."},
+      {text:'"A woman\'s charm is fifty percent illusion."', use:"Blanche has internalised the male gaze — shows how patriarchy shapes women's self-perception."}
+    ],
+    watchOut:"Avoid saying Stella is 'weak' or Blanche is 'foolish'. Williams is critiquing the society that leaves them with no good options.",
+    topArg:"Williams presents women not as passive victims but as rational agents making the best choices available within a system that has deliberately stripped them of alternatives."
+  },
+  { id:3, theme:"Old vs New", difficulty:"Core", q:"How does Williams use the conflict between Blanche and Stanley to explore ideas about class and American society?",
+    aos:["AO1: Class conflict as ideological, not just personal","AO2: Costume, setting, language contrast between characters","AO5: Post-war America, immigration, the Old South's decline"],
+    mustAddress:["Blanche represents the Old South — but Williams doesn't simply mourn it (it was built on exploitation)","Stanley as the New America — immigrant, working-class, dominant — and the ugliness within that","The setting of Elysian Fields is itself a rejection of the world Blanche comes from","Williams refuses a clear hero — both worlds are shown to be flawed","The Napoleonic Code scene — Stanley uses the law to assert class power"],
+    quotes:[
+      {text:'"We\'ve been through the dark ages, but now there\'s going to be a different regime."', use:"Stanley's language is revolutionary. Analyse the word 'regime' — violent and contemptuous."},
+      {text:'"Her appearance is incongruous to this setting."', use:"Stage direction — Williams signals from scene one that Blanche is already obsolete."},
+      {text:'"He acts like an animal, has an animal\'s habits."', use:"Blanche's class contempt — but also a defence mechanism against what Stanley represents."}
+    ],
+    watchOut:"Don't just say 'Stanley is the new world and Blanche is the old.' Top marks go to students who show Williams is ambivalent — critical of BOTH worlds.",
+    topArg:"Williams uses the Blanche/Stanley conflict to argue that America's 'progress' simply replaced one form of brutality with another — old exploitation exchanged for new worship of physical dominance."
+  },
+  { id:4, theme:"Desire", difficulty:"Core", q:"How does Williams present desire and its consequences in A Streetcar Named Desire?",
+    aos:["AO1: Desire as destructive force across all characters","AO2: The streetcar title, musical motifs, physical staging","AO5: Post-war culture of masculine desire, Williams' own experience of hidden desire"],
+    mustAddress:["The title itself — the streetcar journey maps Blanche's fate: Desire → Cemeteries","Desire is not just sexual — it includes desire for security, dominance, connection, stability","Every form of desire in the play ends in destruction or compromise","Stanley's desire as possessive violence — distinct from love entirely","Blanche and Mitch's desire for connection — the most sympathetic but still doomed"],
+    quotes:[
+      {text:'"Death. The opposite is desire."', use:"Four words that contain the play's thesis. Analyse the simplicity — Williams strips it bare deliberately."},
+      {text:'"They told me to take a street-car named Desire, and transfer to one called Cemeteries."', use:"The title's meaning made explicit in scene one. The play's arc in one line."},
+      {text:'"There are things that happen between a man and a woman in the dark..."', use:"Stella's desire shown as stronger than reason, morality, or sisterhood."}
+    ],
+    watchOut:"Don't limit desire to just the romantic/sexual. Best essays show how Williams presents it as the primary human motivator — and then shows it destroying everything it touches.",
+    topArg:"Williams presents desire as the force that animates every character — but refuses to romanticise it. It is blind, selfish, and ultimately indifferent to whether its subject survives the journey."
+  },
+  { id:5, theme:"Character", difficulty:"Character focus", q:"How does Williams present Blanche DuBois as a tragic figure in A Streetcar Named Desire?",
+    aos:["AO1: Argue what makes Blanche 'tragic' in the classical sense","AO2: Williams' stage directions, her language patterns, the light motif","AO5: Greek tragedy conventions, Williams' sister Rose, female vulnerability in 1940s America"],
+    mustAddress:["Classical tragic structure — Blanche has a fatal flaw but is also destroyed by external forces","Williams invites sympathy: her illusions are survival strategies, not vanity","The audience knows more than Blanche at times — dramatic irony deepens tragedy","Her final exit — 'I have always depended on the kindness of strangers' — is she aware of the irony?","Context: Williams' sister Rose was lobotomised — Blanche's fate has autobiographical weight"],
+    quotes:[
+      {text:'"I don\'t tell the truth. I tell what ought to be truth."', use:"Her self-awareness makes her tragic rather than simply dishonest."},
+      {text:'"I have always depended on the kindness of strangers."', use:"Final line. Heartbreaking AND deluded simultaneously — the stranger is the doctor taking her to an asylum."},
+      {text:'"Death. The opposite is desire."', use:"Shows Blanche's poetic intelligence — she understands the forces destroying her even as they destroy her."}
+    ],
+    watchOut:"Don't just say she's tragic because bad things happen to her. Tragedy requires both internal flaws AND external forces — show Williams presents BOTH.",
+    topArg:"Williams constructs Blanche as a tragic figure in the classical mould: her hamartia (self-deception) is inseparable from her greatest strength (empathy and imagination), making her destruction feel both inevitable and unjust."
+  },
+  { id:6, theme:"Character", difficulty:"Character focus", q:"How does Williams present Stanley Kowalski as a threatening figure in A Streetcar Named Desire?",
+    aos:["AO1: Stanley's threat as ideological as well as physical","AO2: Stage directions (animal imagery), physical dominance of space, language","AO5: Post-war masculinity, working-class America, the Napoleonic Code"],
+    mustAddress:["Stanley's threat is ideological as well as physical — he represents a force that destroys without guilt","Williams' stage directions frame him physically from the outset","The Napoleonic Code — he uses law to legitimise his dominance","His perceptiveness makes him more threatening — he sees through Blanche immediately","He faces zero consequences — the most threatening thing is that the world enables him"],
+    quotes:[
+      {text:'"We\'ve had this date with each other from the beginning!"', use:"Pre-assault line. He frames violence as inevitable destiny — removes his own responsibility."},
+      {text:'"Every man is a King! And I am the King around here, so don\'t forget it!"', use:"Repetition of 'King' shows need for absolute dominance. Analyse the imperative 'don\'t forget it.'"},
+      {text:'"We\'ve been through the dark ages, but now there\'s going to be a different regime."', use:"'Regime' has political, violent connotations — Williams frames his dominance as systemic, not just domestic."}
+    ],
+    watchOut:"Don't just catalogue Stanley's violent acts. Focus on HOW Williams presents him — and what Williams wants the audience to feel (complicated, not simply repelled).",
+    topArg:"Williams presents Stanley as threatening precisely because he is enabled: every system in the play — law, marriage, medicine — protects him, suggesting his violence is not aberrant but structural."
+  },
+  { id:7, theme:"Illusion", difficulty:"Extract-based", q:"Starting with this moment in the play, how does Williams present the conflict between truth and illusion? [Scene 9 — Mitch removes the paper lantern]",
+    aos:["AO1: Close reading of extract + wider play argument","AO2: The lantern as symbol, light imagery, Mitch's language","AO5: Expressionism, the theatrical power of the moment"],
+    mustAddress:["Close analysis of the lantern removal — a violent act of exposure, not just revelation","Mitch's language — 'I don't think I ever seen you in the light'","How this scene connects to the wider light motif throughout the play","Blanche's response — 'I didn't lie in my heart' — factual vs emotional truth","Link to the final scene: Stella also faces a truth/illusion choice — universal theme"],
+    quotes:[
+      {text:'"I don\'t think I ever seen you in the light."', use:"Simple line with devastating weight — light = truth, and he has been kept from it deliberately."},
+      {text:'"I didn\'t lie in my heart."', use:"Blanche's most honest moment and most self-aware defence — factual vs emotional truth."},
+      {text:'"I can\'t stand a naked light bulb, any more than I can a rude remark or a vulgar action."', use:"Earlier line — now retrospectively gains full meaning. She literally cannot survive exposure."}
+    ],
+    watchOut:"For extract questions, spend at least half your time on close language analysis of the extract before widening out. Don't rush to the wider play too quickly.",
+    topArg:"The lantern scene is the play's central symbolic act: Mitch's removal of Blanche's illusion is simultaneously an act of cruelty and revelation — Williams shows that 'truth' in this world is wielded as a weapon, not a liberation."
+  },
+  { id:8, theme:"Sexism", difficulty:"Extract-based", q:"Starting with this moment in the play, how does Williams explore power and gender? [Scene 3 — Stanley hits Stella]",
+    aos:["AO1: Power as gendered and structural","AO2: Stage directions, Stanley's physical language, Stella's return","AO5: Domestic violence in 1940s America, women's legal status"],
+    mustAddress:["The stage directions surrounding the violence — how does Williams direct the audience's response?","Stella's return — Williams presents this without simple judgement, showing complexity of desire and dependency","The neighbours' reaction — they intervene but ultimately leave Stanley unpunished","How this scene establishes the pattern that culminates in the rape in Scene 10","Context: in 1947, domestic violence was almost never prosecuted — Williams is documenting social reality"],
+    quotes:[
+      {text:'"There are things that happen between a man and a woman in the dark..."', use:"Stella's later explanation — Williams makes clear her return is rooted in desire, not ignorance."},
+      {text:'"We\'ve had this date with each other from the beginning!"', use:"Final scene echo — shows the pattern established in Scene 3 is never broken. Stanley's power is total."},
+      {text:'"I couldn\'t believe her story and go on living with Stanley."', use:"Shows the Scene 3 dynamic ultimately destroys the sisters' relationship entirely."}
+    ],
+    watchOut:"Don't just describe the violence. Analyse HOW Williams stages it and what he wants the audience to feel — discomfort, complicity, anger? All three simultaneously?",
+    topArg:"Williams stages the Scene 3 violence not to condemn Stella's return but to expose the conditions that make leaving impossible — implicating the society that criminalises neither the violence nor the economic dependence that enables it."
+  }
+];
+
+const qbankFilters = ['All','Illusion','Sexism','Old vs New','Desire','Character','Extract-based'];
+let qbankFilter = 'All';
+let activeQuestion = null;
+const charColors = { Blanche:'#f9a8d4', Stanley:'#fca5a5', Stella:'#86efac', Mitch:'#c4b5fd', Stage:'#94a3b8' };
+const themeColors = { Illusion:'#818cf8', 'Old vs New':'#f59e0b', Sexism:'#f43f5e', Desire:'#ec4899' };
+const filters = ['All','Blanche','Stanley','Stella','Mitch','Illusion','Old vs New','Sexism','Desire'];
+let quoteFilter = 'All';
+let activeChar = null, activeTheme = null, activeCharSection = null, activeThemeSection = null, activePlotScene = null;
+
+function showPanel(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => {
+    b.classList.remove('active');
+    if(b.getAttribute('onclick') && b.getAttribute('onclick').includes("'"+id+"'")) b.classList.add('active');
+  });
+  window.scrollTo(0,0);
+}
+
+function renderCharCards() {
+  document.getElementById('char-cards').innerHTML = characters.map(c => `
+    <button class="item-card" onclick="showChar('${c.id}')" style="background:${c.bg};border-color:${c.color}44;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+        <span style="font-size:36px">${c.icon}</span>
+        <div>
+          <div style="font-size:17px;font-weight:900;color:${c.accent}">${c.name}</div>
+          <div style="font-size:12px;font-style:italic;color:${c.color};opacity:0.8">${c.tagline}</div>
+        </div>
+      </div>
+      <div class="tldr-box" style="background:${c.color}15;border-left-color:${c.color};">
+        <div class="tldr-lbl" style="color:${c.color}">⚡ TL;DR</div>${c.tldr}
+      </div>
+      <div class="tag-row">${c.traits.map(t=>`<span class="tag" style="background:${c.color}22;color:${c.accent}">${t}</span>`).join('')}</div>
+    </button>`).join('');
+}
+
+function showChar(id) {
+  activeChar=id; activeCharSection=null;
+  const c=characters.find(x=>x.id===id);
+  document.getElementById('char-list').style.display='none';
+  const d=document.getElementById('char-detail');
+  d.style.display='block';
+  d.innerHTML=`
+    <button class="back-btn" onclick="hideChar()">← All characters</button>
+    <div class="detail-hero" style="background:${c.bg};border-color:${c.color}44;">
+      <div class="detail-top"><span class="detail-icon">${c.icon}</span>
+        <div><div class="detail-name" style="color:${c.accent}">${c.name}</div><div class="detail-sub">${c.tagline}</div></div>
+      </div>
+      <div class="tldr-box" style="background:${c.color}15;border-left-color:${c.color};">
+        <div class="tldr-lbl" style="color:${c.color}">⚡ TL;DR</div>${c.tldr}
+      </div>
+      <div class="tag-row">${c.traits.map(t=>`<span class="tag" style="background:${c.color}22;color:${c.accent}">${t}</span>`).join('')}</div>
+    </div>
+    <div class="acc-wrap">
+      ${c.sections.map((s,i)=>`
+        <div class="acc-item" style="background:${activeCharSection===i?c.bg:'#111827'};border-color:${activeCharSection===i?c.color:'#1e2a3a'};">
+          <button class="acc-btn" onclick="toggleCharSec(${i})">
+            <div style="flex:1"><div class="acc-title" style="color:${activeCharSection===i?c.accent:'#e2e8f0'}">${s.icon} ${s.title}</div><div class="acc-sum">${s.sum}</div></div>
+            <span class="acc-arr" style="color:${c.color}">${activeCharSection===i?'▲':'▼'}</span>
+          </button>
+          <div class="acc-body ${activeCharSection===i?'open':''}">
+            <p class="acc-detail">${s.detail}</p>
+            ${s.quotes.map(q=>`<div class="quote-card" style="border-color:${c.color}33;"><div class="quote-who" style="color:${c.color}">${q.who}</div><div class="quote-text">${q.text}</div><div class="quote-why" style="color:${c.accent}">💬 ${q.why}</div></div>`).join('')}
+          </div>
+        </div>`).join('')}
+    </div>
+    <div class="bottom-nav">
+      ${characters.filter(x=>x.id!==id).map(x=>`<button class="bnav-btn" onclick="showChar('${x.id}')" style="border-color:${x.color}44;"><div class="bnav-name" style="color:${x.accent}">${x.icon} ${x.name.split(' ')[0]}</div><div class="bnav-tag">${x.tagline}</div></button>`).join('')}
+    </div>`;
+}
+
+function hideChar() { document.getElementById('char-list').style.display='block'; document.getElementById('char-detail').style.display='none'; activeChar=null; }
+function toggleCharSec(i) { activeCharSection=activeCharSection===i?null:i; showChar(activeChar); }
+
+function renderThemeCards() {
+  document.getElementById('theme-cards').innerHTML = themes.map(t => `
+    <button class="item-card" onclick="showTheme('${t.id}')" style="background:${t.bg};border-color:${t.color}44;">
+      <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:10px;">
+        <span style="font-size:34px;flex-shrink:0">${t.icon}</span>
+        <div><div style="font-size:17px;font-weight:900;color:${t.accent}">${t.name}</div><div style="font-size:12px;font-style:italic;color:${t.color};opacity:0.8">${t.tagline}</div></div>
+      </div>
+      <div class="tldr-box" style="background:${t.color}15;border-left-color:${t.color};">
+        <div class="tldr-lbl" style="color:${t.color}">⚡ TL;DR</div>${t.tldr}
+      </div>
+      <div class="tag-row">${t.keywords.map(k=>`<span class="tag" style="background:${t.color}22;color:${t.accent}">${k}</span>`).join('')}</div>
+    </button>`).join('');
+}
+
+function showTheme(id) {
+  activeTheme=id; activeThemeSection=null;
+  const t=themes.find(x=>x.id===id);
+  document.getElementById('theme-list').style.display='none';
+  const d=document.getElementById('theme-detail');
+  d.style.display='block';
+  d.innerHTML=`
+    <button class="back-btn" onclick="hideTheme()">← All themes</button>
+    <div class="detail-hero" style="background:${t.bg};border-color:${t.color}44;">
+      <div class="detail-top"><span class="detail-icon">${t.icon}</span>
+        <div><div class="detail-name" style="color:${t.accent}">${t.name}</div><div class="detail-sub">${t.tagline}</div></div>
+      </div>
+      <div class="tldr-box" style="background:${t.color}15;border-left-color:${t.color};">
+        <div class="tldr-lbl" style="color:${t.color}">⚡ TL;DR</div>${t.tldr}
+      </div>
+      <div style="margin-bottom:10px;"><div style="font-size:10px;font-weight:800;letter-spacing:2px;color:${t.color};margin-bottom:5px;text-transform:uppercase">Keywords</div>
+        <div class="tag-row">${t.keywords.map(k=>`<span class="tag" style="background:${t.color}22;color:${t.accent}">${k}</span>`).join('')}</div>
+      </div>
+      <div><div style="font-size:10px;font-weight:800;letter-spacing:2px;color:${t.color};margin-bottom:5px;text-transform:uppercase">Key characters</div>
+        <div class="tag-row">${t.chars.map(c=>`<span class="tag" style="background:#1e2a3a;color:${t.accent};border:1px solid ${t.color}33">${c}</span>`).join('')}</div>
+      </div>
+    </div>
+    <div class="acc-wrap">
+      ${t.sections.map((s,i)=>`
+        <div class="acc-item" style="background:${activeThemeSection===i?t.bg:'#111827'};border-color:${activeThemeSection===i?t.color:'#1e2a3a'};">
+          <button class="acc-btn" onclick="toggleThemeSec(${i})">
+            <div style="flex:1"><div class="acc-title" style="color:${activeThemeSection===i?t.accent:'#e2e8f0'}">${s.icon} ${s.title}</div><div class="acc-sum">${s.sum}</div></div>
+            <span class="acc-arr" style="color:${t.color}">${activeThemeSection===i?'▲':'▼'}</span>
+          </button>
+          <div class="acc-body ${activeThemeSection===i?'open':''}">
+            <p class="acc-detail">${s.detail}</p>
+            ${s.quotes.map(q=>`<div class="quote-card" style="border-color:${t.color}33;"><div class="quote-who" style="color:${t.color}">${q.who}</div><div class="quote-text">${q.text}</div><div class="quote-why" style="color:${t.accent}">💬 ${q.why}</div></div>`).join('')}
+          </div>
+        </div>`).join('')}
+    </div>
+    <div class="bottom-nav">
+      ${themes.filter(x=>x.id!==id).map(x=>`<button class="bnav-btn" onclick="showTheme('${x.id}')" style="border-color:${x.color}44;"><div class="bnav-name" style="color:${x.accent}">${x.icon} ${x.name}</div><div class="bnav-tag">${x.tagline}</div></button>`).join('')}
+    </div>`;
+}
+
+function hideTheme() { document.getElementById('theme-list').style.display='block'; document.getElementById('theme-detail').style.display='none'; activeTheme=null; }
+function toggleThemeSec(i) { activeThemeSection=activeThemeSection===i?null:i; showTheme(activeTheme); }
+
+function renderQuotes() {
+  document.getElementById('quotes-filter').innerHTML = filters.map(f=>`
+    <button class="filter-btn ${quoteFilter===f?'on':''}" onclick="setFilter('${f}')"
+      style="${quoteFilter===f?`background:${f==='All'?'#e8c547':charColors[f]||themeColors[f]||'#e8c547'};border-color:transparent`:''}">${f}</button>`).join('');
+  const filtered = quoteFilter==='All' ? allQuotes : allQuotes.filter(q=>q.char===quoteFilter||q.theme===quoteFilter);
+  document.getElementById('quotes-list').innerHTML = filtered.map(q=>{
+    const cc=charColors[q.char]||'#94a3b8', tc=themeColors[q.theme]||'#94a3b8';
+    return `<div class="q-item" style="border-color:${cc}33;"><div class="q-meta"><span class="q-tag" style="background:${cc}22;color:${cc}">${q.char}</span><span class="q-tag" style="background:${tc}22;color:${tc}">${q.theme}</span></div><div class="q-quote">${q.text}</div><div class="q-analysis">${q.analysis}</div></div>`;
+  }).join('');
+}
+function setFilter(f) { quoteFilter=f; renderQuotes(); }
+
+function renderPlot() {
+  document.getElementById('plot-list').innerHTML = scenes.map((s,i)=>`
+    <div class="scene-card" onclick="toggleScene(${i})" style="border-color:${s.color}44;">
+      <div class="scene-top">
+        <div><div class="scene-num" style="color:${s.color}">${s.num}</div><div class="scene-title">${s.title}</div></div>
+        <span style="color:${s.color};font-size:16px">${activePlotScene===i?'▲':'▼'}</span>
+      </div>
+      <div class="scene-body ${activePlotScene===i?'open':''}">
+        <p>${s.summary}</p>
+        <div class="scene-key">🎯 Why it matters</div>
+        <p>${s.key}</p>
+        <div class="quote-card" style="border-color:${s.color}44;margin-top:10px;"><div class="quote-who" style="color:${s.color}">Key quote</div><div class="quote-text">${s.quote}</div></div>
+      </div>
+    </div>`).join('');
+}
+function toggleScene(i) { activePlotScene=activePlotScene===i?null:i; renderPlot(); }
+
+function renderContext() {
+  document.getElementById('context-list').innerHTML = contextItems.map(c=>`
+    <div class="context-card" style="border-color:${c.color}44;">
+      <div class="context-icon">${c.icon}</div>
+      <div class="context-title" style="color:${c.color}">${c.title}</div>
+      <div class="context-text">${c.text}</div>
+      <span class="context-link" style="background:${c.color}22;color:${c.color}">🔗 ${c.link}</span>
+    </div>`).join('');
+}
+
+function renderEssay() {
+  document.getElementById('essay-list').innerHTML = essayTips.map(e=>`
+    <div class="essay-card" style="border-left-color:${e.color};">
+      <div class="essay-num" style="color:${e.color}">Tip ${e.num}</div>
+      <div class="essay-title">${e.title}</div>
+      <div class="essay-text">${e.text}</div>
+      ${e.isPEEL?`<div class="peel-grid">${[['P','Point','Make your argument clearly'],['E','Evidence','Quote from the text'],['E','Explain','Analyse the language/effect'],['L','Link','Connect back to the question']].map(([l,w,d])=>`<div class="peel-box" style="background:${e.color}18;"><div class="peel-letter" style="color:${e.color}">${l}</div><div class="peel-word">${w}</div><div class="peel-desc">${d}</div></div>`).join('')}</div>`:''}
+      ${e.example?`<div class="essay-example" style="background:${e.color}12;border-left:3px solid ${e.color};"><div class="essay-example-lbl" style="color:${e.color}">Example</div>${e.example}</div>`:''}
+    </div>`).join('');
+}
+
+function renderQBank() {
+  const diffColors={'Core':'#38bdf8','Character focus':'#c4b5fd','Extract-based':'#86efac'};
+  const themeCol={'Illusion':'#818cf8','Sexism':'#f43f5e','Old vs New':'#f59e0b','Desire':'#ec4899','Character':'#c4b5fd'};
+  document.getElementById('qbank-filter').innerHTML = qbankFilters.map(f=>`
+    <button class="filter-btn ${qbankFilter===f?'on':''}" onclick="setQFilter('${f}')"
+      style="${qbankFilter===f?'background:#38bdf8;border-color:#38bdf8;color:#0d0d1a':''}">${f}</button>`).join('');
+  const filtered=qbankFilter==='All'?questions:questions.filter(q=>q.theme===qbankFilter||q.difficulty===qbankFilter);
+  document.getElementById('qbank-list').innerHTML = filtered.map(q=>{
+    const dc=diffColors[q.difficulty]||'#38bdf8', tc=themeCol[q.theme]||'#38bdf8', open=activeQuestion===q.id;
+    return `<div class="qbank-card" onclick="toggleQ(${q.id})" style="border-color:${dc}44;">
+      <div class="qbank-meta">
+        <span class="qbank-badge" style="background:${tc}22;color:${tc}">${q.theme}</span>
+        <span class="qbank-badge" style="background:${dc}22;color:${dc}">${q.difficulty}</span>
+      </div>
+      <div class="qbank-top">
+        <div class="qbank-q">Q${q.id}: ${q.q}</div>
+        <span style="color:${dc};font-size:16px;flex-shrink:0;margin-left:8px">${open?'▲':'▼'}</span>
+      </div>
+      ${open?'':`<div class="qbank-tap">Tap to see how to approach this →</div>`}
+      <div class="qbank-body ${open?'open':''}">
+        <div class="qbank-ao">
+          ${q.aos.map(a=>{const n=a.slice(0,3);const ac={'AO1':'#e8c547','AO2':'#38bdf8','AO5':'#86efac'}[n]||'#94a3b8';return`<div class="qbank-ao-box" style="background:${ac}15;border:1px solid ${ac}44;"><div class="qbank-ao-label" style="color:${ac}">${n}</div><div class="qbank-ao-desc">${a.slice(5)}</div></div>`}).join('')}
+        </div>
+        <div class="qbank-section-lbl" style="color:${dc}">✅ You MUST address</div>
+        ${q.mustAddress.map(b=>`<div class="qbank-bullet"><span class="qbank-bullet-dot" style="color:${dc}">→</span><span>${b}</span></div>`).join('')}
+        <div class="qbank-section-lbl" style="color:#e8c547">💬 Key quotes to use</div>
+        ${q.quotes.map(qt=>`<div class="qbank-quote-box" style="background:#e8c54712;border-left:3px solid #e8c547;"><div style="color:#f1f5f9;margin-bottom:4px">${qt.text}</div><div style="color:#94a3b8;font-style:normal;font-size:11px;font-weight:700">→ ${qt.use}</div></div>`).join('')}
+        <div class="qbank-section-lbl" style="color:#f43f5e">⚠️ Watch out for</div>
+        <div style="font-size:13px;color:#fda4af;line-height:1.6;padding:8px 0">${q.watchOut}</div>
+        <div class="qbank-section-lbl" style="color:#86efac">🏆 Top-band argument</div>
+        <div style="font-size:13px;color:#cbd5e1;line-height:1.7;background:#86efac12;border-left:3px solid #86efac;padding:10px 13px;border-radius:6px">${q.topArg}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function setQFilter(f) { qbankFilter=f; renderQBank(); }
+function toggleQ(id) { activeQuestion=activeQuestion===id?null:id; renderQBank(); }
+
+function init() {
+  renderCharCards(); renderThemeCards(); renderQuotes();
+  renderPlot(); renderContext(); renderEssay(); renderQBank();
+}
+init();
+</script>
+</body>
+</html>
